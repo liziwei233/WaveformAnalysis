@@ -1,5 +1,7 @@
 # Prerequisites
 *.d
+*.root
+.vscode
 
 # Compiled Object files
 *.slo
