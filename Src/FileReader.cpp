@@ -4,9 +4,14 @@ FileReader::FileReader(std::vector<int> channel_ids, const char *dir_path, const
 {
     for (int i = 0; i < channel_ids.size(); ++i)
     {
-        if (channel_ids.at(i) >= 100)
+        if (channel_ids.at(i) >= 100 && channel_ids.at(i) < 200)
         {
             Channel C = Channel(dir_path, "TR_0", channel_ids.at(i) - 100);
+            Channels.push_back(C);
+        }
+        else if (channel_ids.at(i) >= 200)
+        {
+            Channel C = Channel(dir_path, "TR_1", channel_ids.at(i) - 200);
             Channels.push_back(C);
         }
         else
