@@ -10,7 +10,7 @@ Channel::Channel(const char *dir, const char *file_midname, int ID)
     else
         filename = std::string(file_midname) + std::string("_") + std::to_string(ID) + std::string(".txt");
 
-    wave.reserve(1e8);
+    wave.reserve(1e9);
     //waveform_x.reserve(4002);
     //waveform_y.reserve(4002);
 
@@ -58,6 +58,7 @@ int Channel::ReadBinary(std::ifstream &infile, std::vector<float> *wave)
         {
 
             infile.read((char *)&amp, sizeof(float));
+            if(amp!=0&&amp<1e-15) amp=0;
             wave->push_back(amp);
             //std::cout << ", waveform_y= " << wave->back() << std::endl;
         }

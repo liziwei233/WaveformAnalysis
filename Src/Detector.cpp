@@ -49,7 +49,7 @@ void Detector::SubstractBaseline(int base_region_end)
     int base_region_start = base_region_end - 1000;
     if (base_region_start <= 0 ) base_region_start = 1;
     if (base_region_start >= base_region_end) base_region_start = 0;
-    for(int i = base_region_start; i < base_region_end; ++i)
+    for(int i = base_region_start; i <= base_region_end&&i < waveform_y.size(); ++i)
     {
         double y = waveform_y.at(i);
         baseline_sum+=y;
@@ -68,38 +68,39 @@ void Detector::FindGlobalMaximum(int start, int end)
 {
     global_maximum.y=-111111;
     global_maximum.x = 0;
-    global_maximum.position=-111111;
-
+    global_maximum.position=1;
+    bool findflag=0;
     for(int i = start ; i <= end && i < waveform_y.size() ; i++)
     { 
         if( waveform_y.at(i) > global_maximum.y )
         {
+            findflag=1;
             global_maximum.y = waveform_y.at(i);
             global_maximum.position = i;
         }
     }
-    if(global_maximum.position>0)
-    global_maximum.x = waveform_x.at(global_maximum.position);
+    if(findflag) global_maximum.x = waveform_x.at(global_maximum.position);
 }
 
 void Detector::FindInvertMaximum(int start, int end)
 {
     invert_maximum.y=111111;
     invert_maximum.x=0;
-    invert_maximum.position=-111111;
+    invert_maximum.position=1;
     //if( start<3) start =3;
-
+    bool findflag=0;
     for(int i = start ; i <= end && i < waveform_y.size() ; i++)
     { 
         if( waveform_y.at(i) < invert_maximum.y )
         {
+            findflag=1;
             invert_maximum.y = waveform_y.at(i);
             invert_maximum.position = i;
         }
         
        
     }
-    if(invert_maximum.position>0)
+    if(findflag)
     invert_maximum.x = waveform_x.at(invert_maximum.position);
 }
 
@@ -109,7 +110,7 @@ void Detector::FindStartPoint(int start)
     start_point.x = 0;
     start_point.y = 0;
     start_point.position = 1;
-    for(int i = global_maximum.position; i >= start; --i)
+    for(int i = global_maximum.position; i >= start&&i>=0; --i)
     {
         if(waveform_y.at(i) - baseline_rms < 0 )
         {
@@ -130,7 +131,8 @@ void Detector::FindEndPoint(int start)
     end_point.position = N-1;
 
     int j = type > 0 ? start : global_maximum.position;
-    for(int i = j ; i < N; ++i)
+    //int j = start>global_maximum.position? global_maximum.position: start;
+    for(int i = j ; i < N&&i>=0; ++i)
     {
         if( waveform_y.at(i) - baseline_rms < 0 )
         {
@@ -221,7 +223,7 @@ WaveformPoint Detector::FindTimingPoint(double fac,int partype)
     else {
         cf = fac;}
 
-    for(int i = global_maximum.position ; i > start_point.position && i>1; --i)
+    for(int i = global_maximum.position ; i > start_point.position && i>1&&i<waveform_y.size(); --i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i-1) - cf < 0 )
         {
@@ -245,7 +247,7 @@ WaveformPoint Detector::FindTimingPoint(double fac,int partype)
 void Detector::FindNaiveTiming()
 {
     double cf = 0.2*global_maximum.y;
-    for(int i = global_maximum.position ; i > start_point.position && i>1; --i)
+    for(int i = global_maximum.position ; i > start_point.position && i>1 &&i<waveform_y.size(); --i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i-1) - cf < 0 )
         {
@@ -393,7 +395,7 @@ TimingInfo Detector::Time_linear(double fac,int partype,int Npoint){
     else {
         cf = fac;}
 
-    for(int i = global_maximum.position ; i > start_point.position && i>1; --i)
+    for(int i = global_maximum.position ; i > start_point.position && i>1 &&i<waveform_y.size(); --i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i-1) - cf < 0 )
         {
@@ -610,7 +612,7 @@ void Detector::TimeSigmoid()
     }
 
     double x[Npoints], y[Npoints], erx[Npoints], ery[Npoints];
-    for(int i = start; i <= end; ++i)
+    for(int i = start; i <= end &&i<waveform_y.size() &&i>=0; ++i)
     {
         x[i-start] = waveform_x.at(i);
         y[i-start] = waveform_y.at(i);
@@ -719,7 +721,7 @@ void Detector::FindRiseTime()
  
     double cf = 0.8*global_maximum.y;
 
-    for(int i = global_maximum.position ; i >= start_point.position && i > 1; --i)
+    for(int i = global_maximum.position ; i >= start_point.position && i > 1 &&i<waveform_y.size(); --i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i-1) - cf < 0 )
         {
@@ -741,7 +743,7 @@ void Detector::FindWidth()
     double left_time;
     double right_time;
     double cf = 0.5*global_maximum.y; //FWHM
-    for(int i = global_maximum.position ; i >= start_point.position; --i)
+    for(int i = global_maximum.position ; i >= start_point.position &&i<waveform_y.size()-1; --i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i-1) - cf < 0 )
         {
@@ -755,7 +757,7 @@ void Detector::FindWidth()
     }
 
     bool ion_tail_is_too_high = 1;
-    for(int i = global_maximum.position ; i <= end_point.position; ++i)
+    for(int i = global_maximum.position ; i <= end_point.position &&i<waveform_y.size()-1; ++i)
     {
         if( waveform_y.at(i) - cf > 0 && waveform_y.at(i+1) - cf < 0 )
         {

@@ -39,13 +39,13 @@ int main(int argc, char *argv[])
     int Nch = atoi(argv[2]);
     ExpSetup mysetup;
     std::vector<int> channel_IDs;
-    for(int i = start_id; i<1+start_id;i++)
+    for(int i = start_id; i<Nch+start_id;i++)
     {
     channel_IDs.push_back(i); 
     mysetup.CreateMCP();
     }
-    //channel_IDs.push_back(100); 
-    //mysetup.CreateTR();
+    channel_IDs.push_back(100); 
+    mysetup.CreateTR();
     //channel_IDs.push_back(101); 
     //mysetup.CreateTR();
     //return 0;
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
      
         mysetup.Fill_Tree();
         i++;
-        //if(i==700) break;
+        //if(i==10) break;
     }
     mysetup.Finalize_Tree(output_rootfile_name);
 
