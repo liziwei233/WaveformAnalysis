@@ -62,10 +62,13 @@ class Detector
     void SubstractBaseline(int base_region_end);
     void FindGlobalMaximum(int start, int end);
     void FindInvertMaximum(int start, int end);
+    void FindFirstPeak(int start, int end);
+    void ConvertFirstPeak2GlobalMaximum();
     void FindStartPoint(int start);
     void FindEndPoint(int start);
     void CalculateCharges();
     void FindNaiveTiming();
+    void FindeightypercentTiming();
     double linear_interpolation(double x1, double x2, double y1, double y2, double y);
     bool FitPol3(double* x, double* y, double* fit_parameters);
     void LineFitLeastSquares(double *data_x, double *data_y, int data_n, std::vector<double> &vResult);
@@ -88,14 +91,17 @@ class Detector
     double baseline_rms;
 
     WaveformPoint global_maximum;
+    WaveformPoint firstpeak;
     WaveformPoint invert_maximum;
     WaveformPoint start_point;
     WaveformPoint end_point;
     WaveformPoint naive_point;
+    WaveformPoint eightypercent_naive;
 
     double charge_all[4];
 
     double naive_time;//ns
+    double eightypercent_naive_time;//ns
     double rise_time;// defined from 20% to 80% height of the pulse
     double width;
 

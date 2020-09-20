@@ -64,8 +64,8 @@ int main(int argc, char *argv[])
     while (myfile.GetNextEvent())
     {
 
-        printf("\rEvent is: %.5d ===============================================\n", i); //magic
 
+        printf("\rEvent is: %.5d ===============================================\n", i); //magic
         mysetup.Analysis();
 
         if ( enable_dumping && i  == dumping_id) 

@@ -10,5 +10,6 @@
     extern bool gBinaryFlag;
     extern float vertical_offset;
     extern float horizontal_offset;
+    extern bool filecreate;
 
 #endif

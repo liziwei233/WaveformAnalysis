@@ -40,15 +40,21 @@ void ExpSetup::Analysis()
         max_region_end = 2000 + baseline_region_end;
 
         Detectors.at(i)->SubstractBaseline(baseline_region_end);
+        //Detectors.at(i)->FindGlobalMaximum(baseline_region_end, max_region_end);
+        //Detectors.at(i)->FindStartPoint(baseline_region_end);
+        //Detectors.at(i)->FindEndPoint(max_region_end);
+        //Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
 
-        Detectors.at(i)->FindGlobalMaximum(baseline_region_end, max_region_end);
+        Detectors.at(i)->FindFirstPeak(baseline_region_end, max_region_end);
+        Detectors.at(i)->ConvertFirstPeak2GlobalMaximum();
         Detectors.at(i)->FindStartPoint(baseline_region_end);
         Detectors.at(i)->FindEndPoint(max_region_end);
-        Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->CalculateCharges();
-        Detectors.at(i)->FindNaiveTiming();
+        //Detectors.at(i)->FindNaiveTiming();
+        //Detectors.at(i)->FindeightypercentTiming();
         Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
-
+        Detectors.at(i)->FindWidth();
+        Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->TimeInformation();
     }
 }
@@ -56,7 +62,8 @@ void ExpSetup::Analysis()
 void ExpSetup::Dump(int id)
 //void TestBeamSetup::Dump(int id)
 {
-    TFile dumpfile("CheckYourWaveform.root", "update");
+    TFile dumpfile("CheckYourWaveform.root","update");
+
     //TTree *newtree = OutTree->CloneTree(0);
     //newtree->Fill();
 
@@ -106,10 +113,13 @@ void ExpSetup::Dump(int id)
     //Detectors.at(0)->pre_filter_backup->Sigmoid.fit_func.Write("rawsigmoid");
     //newtree->Write();
     dumpfile.Close();
+    //dumpfile->Delete();
 }
 
 void ExpSetup::init(std::vector<int> channel_ids)
 {
+    //TFile create("CheckYourWaveform.root","recreate");
+    //create.Close();
     Channel_IDs = channel_ids;
     NofDetectors = Detectors.size();
     //max_region_end = 20001;
@@ -188,6 +198,10 @@ void ExpSetup::init_tree()
         varname = typestr + "rise_time";
         leafname = varname + "/D";
         OutTree->Branch(varname.c_str(), &det->rise_time, leafname.c_str());
+
+        varname = typestr + "width";
+        leafname = varname + "/D";
+        OutTree->Branch(varname.c_str(), &det->width, leafname.c_str());
 
         varname = typestr + "CFDtime";
         leafname = varname + "[8]/D";

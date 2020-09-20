@@ -10,7 +10,7 @@ Channel::Channel(const char *dir, const char *file_midname, int ID)
     else
         filename = std::string(file_midname) + std::string("_") + std::to_string(ID) + std::string(".txt");
 
-    wave.reserve(1e9);
+    wave.reserve(1e8);
     //waveform_x.reserve(4002);
     //waveform_y.reserve(4002);
 

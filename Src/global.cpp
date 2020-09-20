@@ -9,3 +9,4 @@ float gvertical_gain_tr = 1;
 //float gvertical_gain_tr = 0.59;
 float vertical_offset = 0;
 float horizontal_offset = 0;
+bool filecreate=0;
