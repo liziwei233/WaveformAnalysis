@@ -62,6 +62,7 @@ class Detector
     void SubstractBaseline(int base_region_end);
     void FindGlobalMaximum(int start, int end);
     void FindInvertMaximum(int start, int end);
+    void FindSecondInvertPeak(int start, int end);
     void FindFirstPeak(int start, int end);
     void ConvertFirstPeak2GlobalMaximum();
     void FindStartPoint(int start);
@@ -93,6 +94,7 @@ class Detector
     WaveformPoint global_maximum;
     WaveformPoint firstpeak;
     WaveformPoint invert_maximum;
+    WaveformPoint SecondInvertPeak;
     WaveformPoint start_point;
     WaveformPoint end_point;
     WaveformPoint naive_point;

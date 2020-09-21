@@ -55,6 +55,7 @@ void ExpSetup::Analysis()
         Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
         Detectors.at(i)->FindWidth();
         Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
+         Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position,max_region_end);
         Detectors.at(i)->TimeInformation();
     }
 }

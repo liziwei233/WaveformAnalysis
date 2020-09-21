@@ -82,6 +82,10 @@ void Detector::FindGlobalMaximum(int start, int end)
     }
     if (findflag)
         global_maximum.x = waveform_x.at(global_maximum.position);
+        else {
+            global_maximum.y = -111111;
+    global_maximum.position = 1;
+        }
 }
 
 void Detector::FindFirstPeak(int start, int end)
@@ -159,6 +163,34 @@ void Detector::FindInvertMaximum(int start, int end)
     }
     if (findflag)
         invert_maximum.x = waveform_x.at(invert_maximum.position);
+        else {
+            invert_maximum.y = 111111;
+    invert_maximum.position = 1;
+        }
+}
+
+void Detector::FindSecondInvertPeak(int start, int end)
+{
+    SecondInvertPeak.y = 111111;
+    SecondInvertPeak.x = 0;
+    SecondInvertPeak.position = 1;
+    //if( start<3) start =3;
+    bool findflag = 0;
+    for (int i = start; i <= end && i < waveform_y.size()-1; i++)
+    {
+        if (waveform_y.at(i) < SecondInvertPeak.y&&waveform_y.at(i) <waveform_y.at(i+1))
+        {
+            findflag = 1;
+            SecondInvertPeak.y = waveform_y.at(i);
+            SecondInvertPeak.position = i;
+        }
+    }
+    if (findflag)
+        SecondInvertPeak.x = waveform_x.at(SecondInvertPeak.position);
+        else{
+            SecondInvertPeak.y = 111111;
+    SecondInvertPeak.position = 1;
+        }
 }
 
 void Detector::FindStartPoint(int start)
