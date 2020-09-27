@@ -62,7 +62,7 @@ class Detector
     void SubstractBaseline(int base_region_end);
     void FindGlobalMaximum(int start, int end);
     void FindInvertMaximum(int start, int end);
-    void FindSecondInvertPeak(int start, int end);
+    void FindSecondInvertPeak(int start);
     void FindFirstPeak(int start, int end);
     void ConvertFirstPeak2GlobalMaximum();
     void FindStartPoint(int start);

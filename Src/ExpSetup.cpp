@@ -55,7 +55,7 @@ void ExpSetup::Analysis()
         Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
         Detectors.at(i)->FindWidth();
         Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
-         Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position,max_region_end);
+         Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->TimeInformation();
     }
 }
@@ -76,6 +76,7 @@ void ExpSetup::Dump(int id)
     TGraph gr;
     TGraph gMP;  // main peak
     TGraph gCTP; //crosstalk peak
+    TGraph gRP; // ringing peak
     for (int i = 0; i < Detectors.size(); ++i)
     {
         char str1[20];
@@ -85,6 +86,7 @@ void ExpSetup::Dump(int id)
 
         gMP.SetPoint(0, Detectors.at(i)->global_maximum.x, Detectors.at(i)->global_maximum.y);
         gCTP.SetPoint(0, Detectors.at(i)->invert_maximum.x, Detectors.at(i)->invert_maximum.y);
+        gRP.SetPoint(0, Detectors.at(i)->SecondInvertPeak.x, Detectors.at(i)->SecondInvertPeak.y);
         //sprintf(str1,"graph_%d",i,id);
         gMP.SetMarkerSize(2);
         gMP.SetMarkerStyle(32);
@@ -92,12 +94,16 @@ void ExpSetup::Dump(int id)
         gCTP.SetMarkerSize(2);
         gCTP.SetMarkerStyle(46);
         gCTP.SetMarkerColor(2);
+        gRP.SetMarkerSize(2);
+        gRP.SetMarkerStyle(41);
+        gRP.SetMarkerColor(2);
 
        
 
         gr.Draw("AL");
         gMP.Draw("Psame");
         gCTP.Draw("Psame");
+        gRP.Draw("Psame");
         TLine *linebl = new TLine(Detectors.at(i)->waveform_x[0], 0, Detectors.at(i)->waveform_x.at(record_blregion_end[i]), 0);
         linebl->SetLineColor(2);
         linebl->SetLineWidth(2);
@@ -191,6 +197,14 @@ void ExpSetup::init_tree()
         varname = typestr + "invert_maximum_y";
         leafname = varname + "/D";
         OutTree->Branch(varname.c_str(), &det->invert_maximum.y, leafname.c_str());
+
+        varname = typestr + "secondinvertpeak_x";
+        leafname = varname + "/D";
+        OutTree->Branch(varname.c_str(), &det->SecondInvertPeak.x, leafname.c_str());
+
+        varname = typestr + "secondinvertpeak_y";
+        leafname = varname + "/D";
+        OutTree->Branch(varname.c_str(), &det->SecondInvertPeak.y, leafname.c_str());
 
         varname = typestr + "all_charge";
         leafname = varname + "[4]/D";

@@ -46,7 +46,7 @@ then
 				do
 					nsubfile=$(ls -l $path/$name/$subname/wave* | grep "^-" | wc -l)
 					echo "Nfile =" $((nsubfile))
-					./analyze $path/$name/$subname $((nsubfile)) $name_$subname.root $startid
+					./analyze $path/$name/$subname $((nsubfile)) $path/$pathname$name$subname.root $startid
 					echo "./analyze $path/$name/$subname $((nsubfile)) $name_$subname.root $startid"
 				done
 			fi
