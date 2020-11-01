@@ -3,13 +3,24 @@
 #include "TLine.h"
 #include "TVirtualPad.h"
 
+ExpSetup::~ExpSetup()
+{
+    if (!avers.empty())
+    {
+
+        for (int i = 0; i < avers.size(); ++i)
+            delete avers.at(i);
+    }
+}
+
 void ExpSetup::Analysis()
 {
     //ScaleAndShiftTimes();
     for (int i = 0; i < NofDetectors; ++i)
     {
         Detectors.at(i)->InvertY();
-        if(Detectors.at(i)->type>0) Detectors.at(i)->ConvertToTR();
+        //if (Detectors.at(i)->type == 0)
+        //    Detectors.at(i)->ConvertToTR();
     }
     //Dynamically find the end for the baseline calculation region
     //for(int i = 0; i < NofDetectors; ++i)
@@ -24,7 +35,7 @@ void ExpSetup::Analysis()
             baseline_region_end = Detectors.at(i)->global_maximum.position;
         //std::cout<<"NofDet="<<i<<",NofPoint="<<Detectors.at(i)->waveform_y.size()<<",baseline_region_end="<<baseline_region_end-200<<std::endl;
 
-        baseline_region_end -= 15./ghorizontal_interval; // assume risetime<5ns
+        baseline_region_end -= 15. / ghorizontal_interval; // assume risetime<5ns
         if (baseline_region_end < 0)
         {
 
@@ -55,7 +66,7 @@ void ExpSetup::Analysis()
         Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
         Detectors.at(i)->FindWidth();
         Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
-         Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position);
+        Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->TimeInformation();
     }
 }
@@ -63,7 +74,7 @@ void ExpSetup::Analysis()
 void ExpSetup::Dump(int id)
 //void TestBeamSetup::Dump(int id)
 {
-    TFile dumpfile("CheckYourWaveform.root","update");
+    TFile dumpfile("CheckYourWaveform.root", "update");
 
     //TTree *newtree = OutTree->CloneTree(0);
     //newtree->Fill();
@@ -76,7 +87,7 @@ void ExpSetup::Dump(int id)
     TGraph gr;
     TGraph gMP;  // main peak
     TGraph gCTP; //crosstalk peak
-    TGraph gRP; // ringing peak
+    TGraph gRP;  // ringing peak
     for (int i = 0; i < Detectors.size(); ++i)
     {
         char str1[20];
@@ -97,8 +108,6 @@ void ExpSetup::Dump(int id)
         gRP.SetMarkerSize(2);
         gRP.SetMarkerStyle(41);
         gRP.SetMarkerColor(2);
-
-       
 
         gr.Draw("AL");
         gMP.Draw("Psame");
@@ -146,18 +155,20 @@ void ExpSetup::init_tree()
         Detector *det;
         int type = Detectors.at(i)->type;
         std::string typestr;
-        if(type>0){
+        if (type == 0)
+        {
             tr_no = Channel_IDs.at(i);
             char str[20];
-            sprintf(str,"TR%d_",tr_no);
+            sprintf(str, "TR%d_", tr_no);
             typestr = str;
         }
-        else{
+        else
+        {
 
-        mcp_no = Channel_IDs.at(i);
-        char str[20];
-        sprintf(str, "MCP%d_", mcp_no);
-        typestr = str;
+            mcp_no = Channel_IDs.at(i);
+            char str[20];
+            sprintf(str, "MCP%d_", mcp_no);
+            typestr = str;
         }
 
         det = Detectors.at(i);
@@ -243,5 +254,134 @@ void ExpSetup::init_tree()
         OutTree->Branch(varname.c_str(), det->LEDfailed, leafname.c_str());
 
         std::cout << typestr << std::endl;
+    }
+}
+void ExpSetup::CreateAverageTools()
+{
+    for (int i = 0; i < NofDetectors; ++i)
+    {
+        avers.push_back(new AverageTool());
+    }
+}
+
+void ExpSetup::SetWaveformToAverage()
+{
+    //ScaleAndShiftTimes();
+    for (int i = 0; i < NofDetectors; ++i)
+    {
+        Detectors.at(i)->InvertY();
+    }
+    int j = 0;
+    double ref_time[50] = {0};
+    double n = 0;
+    double normalization = 0;
+    float yfactor = 0;
+    double cut[10] = {9e5, 9e5, 9e5, 9e5, 9e5};
+    double qcut[10] = {-9e5, -9e5, -9e5, -9e5};
+    int ntrue = 0;
+    for (int i = 0; i < NofDetectors; ++i)
+    {
+        baseline_region_end = gNsample;
+        normalization = 1;
+        Detectors.at(i)->FindGlobalMaximum(0, Detectors.at(i)->waveform_y.size() - 1);
+        if (Detectors.at(i)->global_maximum.position < baseline_region_end)
+            baseline_region_end = Detectors.at(i)->global_maximum.position;
+
+        baseline_region_end -= 15. / ghorizontal_interval;
+        if (baseline_region_end <= 0)
+        {
+
+            baseline_region_end = 100.;
+            if (baseline_region_end > Detectors.at(i)->global_maximum.position)
+            {
+                baseline_region_end = 50.;
+                if (baseline_region_end > Detectors.at(i)->global_maximum.position)
+                    baseline_region_end = 25.;
+            }
+        }
+        max_region_end = 2000 + baseline_region_end;
+        record_blregion_end[i] = baseline_region_end;
+        //===
+        //
+
+        Detectors.at(i)->SubstractBaseline(baseline_region_end);
+        if (Detectors.at(i)->type == 0)
+            Detectors.at(i)->FindGlobalMaximum(baseline_region_end, max_region_end);
+        else
+        {
+            Detectors.at(i)->FindFirstPeak(baseline_region_end, max_region_end);
+            Detectors.at(i)->ConvertFirstPeak2GlobalMaximum();
+        }
+
+        Detectors.at(i)->FindStartPoint(baseline_region_end);
+        Detectors.at(i)->FindEndPoint(max_region_end);
+        //Detectors.at(i)->FindElectronPeakEndPoint();
+        Detectors.at(i)->CalculateCharges();
+        Detectors.at(i)->FindNaiveTiming();
+        //Detectors.at(i)->FindRiseTime();
+        //Detectors.at(i)->FindFirstPeak();
+        //Detectors.at(i)->FindMaxDerivative();
+
+        //Detectors.at(i)->TimeTwentyPercent();
+        //Detectors.at(i)->TimeInflection();
+        //ref_time += Detectors.at(i)->Inflection.timing;
+        
+        ref_time[i] = Detectors.at(i)->naive_point.x;
+        if (ref_time[i] <= 0 || ref_time[i] > 4e3)
+        ref_time[i] = 15.;
+        if (Detectors.at(i)->global_maximum.y < cut[i] && Detectors.at(i)->charge_all[0] > qcut[i])
+        {
+            ntrue++;
+        }
+    }
+    std::cout << "the delta ref_time= " << ref_time[1]- ref_time[0]<< std::endl;
+    if (ntrue > NofDetectors - 1)
+    {
+        for (int i = 0; i < NofDetectors; ++i)
+        {
+
+            //if (std::abs(Detectors.at(i)->global_maximum.y) > 0.5e-3)
+            //    normalization = 1. / Detectors.at(i)->global_maximum.y;
+            //avers.at(i)->initial();
+
+            //std::cout<<" global maximum y &cut ="<<Detectors.at(i)->global_maximum.y<<"\t"<<cut[Channel_IDs.at(i)]<<std::endl;
+            if (Detectors.at(i)->type == 0)
+                yfactor = gvertical_gain_tr[Channel_IDs.at(i) - 100];
+            else
+                yfactor = gvertical_gain_ch[Channel_IDs.at(i)];
+            avers.at(i)->SetWaveform(Detectors.at(i)->waveform_x, Detectors.at(i)->waveform_y, ref_time[i], yfactor, baseline_region_end);
+            avers.at(i)->StandardAverage();
+        }
+    }
+
+    //ref_time/= n;
+    //if (ref_time > 1.e3)
+    //    ref_time = 15.;
+
+    //double normalization = 1. / Detectors.at(j)->global_maximum.y;
+    //for(int i = 0; i < Detectors.at(j)->waveform_y.size(); ++i)
+    //{
+    //    normalization += Detectors.at(j)->waveform_y.at(i);
+    //}
+    //normalization /= Detectors.at(j)->waveform_y.size();
+
+    //aver.SetWaveform(Detectors.at(j)->waveform_x, Detectors.at(j)->waveform_y, ref_time, normalization, baseline_region_end);
+}
+void ExpSetup::Finalize_AverageTools(const char *outfile_name)
+{
+    //char str1[200];
+    TFile *f = new TFile(outfile_name, "recreate");
+    f->Close();
+    delete f;
+    char ch_name[1024];
+    for (int i = 0; i < avers.size(); ++i)
+    {
+        //sprintf(str1, "CH%d%s.root", Channel_IDs.at(i),outfile_name);
+        avers.at(i)->Finalize();
+        if (Detectors.at(i)->type == 0)
+            sprintf(ch_name, "TR%d", Channel_IDs.at(i));
+        else
+            sprintf(ch_name, "CH%d", Channel_IDs.at(i));
+        avers.at(i)->Write(outfile_name, ch_name);
     }
 }

@@ -11,12 +11,15 @@ CFLAGS = -O2 -std=c++11 `root-config --libs --cflags` \
 
 LDFLAGS = `root-config --glibs` 
 
-all: $(OBJECTS) analyze
-testbeam: $(OBJECTS) analyze
+all: $(OBJECTS) analyze average
+//testbeam: $(OBJECTS) analyze average
 
 
 analyze: $(OBJECTS) analyze.cpp 
 	@echo "Building executable 'analyze'..."
+	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+average: $(OBJECTS) average.cpp 
+	@echo "Building executable 'average'..."
 	@$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 $(OBJDIR)/Detector.o: $(SRCDIR)/Detector.cpp $(INCDIR)/Detector.h 
@@ -38,6 +41,10 @@ $(OBJDIR)/FileReader.o: $(SRCDIR)/FileReader.cpp $(INCDIR)/FileReader.h
 
 
 $(OBJDIR)/Channel.o: $(SRCDIR)/Channel.cpp $(INCDIR)/Channel.h 
+	@echo "Building "$@"..."
+	@$(CC) -c $(CFLAGS) $< -o $@
+
+$(OBJDIR)/AverageTool.o: $(SRCDIR)/AverageTool.cpp $(INCDIR)/AverageTool.h 
 	@echo "Building "$@"..."
 	@$(CC) -c $(CFLAGS) $< -o $@
 

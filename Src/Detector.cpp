@@ -24,7 +24,7 @@ void Detector::SetMCP()
 }
 void Detector::SetTR()
 {
-    type = 100;
+    type = 0;
 }
 
 void Detector::InvertY()

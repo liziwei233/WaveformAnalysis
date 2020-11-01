@@ -10,6 +10,7 @@
 #include <TMath.h>
 #include <TTree.h>
 
+#include "AverageTool.h"
 #include "Detector.h"
 class Detector;
 
