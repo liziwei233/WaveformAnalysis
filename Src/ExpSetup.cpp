@@ -349,7 +349,7 @@ void ExpSetup::SetWaveformToAverage()
                 yfactor = gvertical_gain_tr[Channel_IDs.at(i) - 100];
             else
                 yfactor = gvertical_gain_ch[Channel_IDs.at(i)];
-            avers.at(i)->SetWaveform(Detectors.at(i)->waveform_x, Detectors.at(i)->waveform_y, ref_time[i], yfactor, baseline_region_end);
+            avers.at(i)->SetWaveform(Detectors.at(i)->waveform_x, Detectors.at(i)->waveform_y, ref_time[0], yfactor, baseline_region_end);
             avers.at(i)->StandardAverage();
         }
     }

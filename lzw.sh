@@ -40,13 +40,15 @@ then
 				echo $pre
 				echo "Nfile =" $((nfile))
 				./analyze $path/$name $((nfile)) $path/$pathname$name.root $startid
+				./average $path/$name $((nfile)) $path/$pathname${name}average.root $startid
 				echo "./analyze $path/$name $((nfile)) $path/$pathname$name.root $startid"
 			else
 				for subname in `ls $path/$name`
 				do
 					nsubfile=$(ls -l $path/$name/$subname/wave* | grep "^-" | wc -l)
 					echo "Nfile =" $((nsubfile))
-					./analyze $path/$name/$subname $((nsubfile)) $path/$pathname$name$subname.root $startid
+					./analyze $path/$name/$subname $((nsubfile)) $path/${pathname}${name}${subname}.root $startid
+					./average $path/$name/$subname $((nsubfile)) $path/${pathname}${name}${subname}average.root $startid
 					echo "./analyze $path/$name/$subname $((nsubfile)) $name_$subname.root $startid"
 				done
 			fi
@@ -60,6 +62,7 @@ else
 	echo "Nfile =" $((nfile))
 	echo $pre
 	./analyze $path/ $((nfile)) $path/../${pathname}.root $startid
+	./average $path/ $((nfile)) $path/../${pathname}average.root $startid
 	echo "./analyze $path/ $((nfile)) $path/../${pathname}.root $startid"
 fi
 
