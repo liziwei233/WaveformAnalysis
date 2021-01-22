@@ -65,9 +65,11 @@ void ExpSetup::Analysis()
         //Detectors.at(i)->FindeightypercentTiming();
         Detectors.at(i)->FindRiseTime(); //0.2-0.8 Leading Edge
         Detectors.at(i)->FindWidth();
+        /*
         Detectors.at(i)->FindInvertMaximum(baseline_region_end, Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->FindSecondInvertPeak(Detectors.at(i)->global_maximum.position);
         Detectors.at(i)->TimeInformation();
+        */
     }
 }
 
@@ -200,6 +202,10 @@ void ExpSetup::init_tree()
         varname = typestr + "end_x";
         leafname = varname + "/D";
         OutTree->Branch(varname.c_str(), &det->end_point.x, leafname.c_str());
+/*
+//
+//** for crosstalk study **
+//****************************
 
         varname = typestr + "invert_maximum_x";
         leafname = varname + "/D";
@@ -216,7 +222,7 @@ void ExpSetup::init_tree()
         varname = typestr + "secondinvertpeak_y";
         leafname = varname + "/D";
         OutTree->Branch(varname.c_str(), &det->SecondInvertPeak.y, leafname.c_str());
-
+*/
         varname = typestr + "all_charge";
         leafname = varname + "[4]/D";
         OutTree->Branch(varname.c_str(), det->charge_all, leafname.c_str());
@@ -229,6 +235,11 @@ void ExpSetup::init_tree()
         leafname = varname + "/D";
         OutTree->Branch(varname.c_str(), &det->width, leafname.c_str());
 
+/*
+
+//
+//** for time performance study **
+//*
         varname = typestr + "CFDtime";
         leafname = varname + "[8]/D";
         OutTree->Branch(varname.c_str(), det->CFDtime, leafname.c_str());
@@ -252,7 +263,7 @@ void ExpSetup::init_tree()
         varname = typestr + "LEDfailed";
         leafname = varname + "[14]/O";
         OutTree->Branch(varname.c_str(), det->LEDfailed, leafname.c_str());
-
+*/
         std::cout << typestr << std::endl;
     }
 }
@@ -346,9 +357,11 @@ void ExpSetup::SetWaveformToAverage()
 
             //std::cout<<" global maximum y &cut ="<<Detectors.at(i)->global_maximum.y<<"\t"<<cut[Channel_IDs.at(i)]<<std::endl;
             if (Detectors.at(i)->type == 0)
-                yfactor = gvertical_gain_tr[Channel_IDs.at(i) - 100];
+                //yfactor = gvertical_gain_tr[Channel_IDs.at(i) - 100];
+                yfactor = 1;
             else
-                yfactor = gvertical_gain_ch[Channel_IDs.at(i)];
+                //yfactor = gvertical_gain_ch[Channel_IDs.at(i)];
+                yfactor = 1;
             avers.at(i)->SetWaveform(Detectors.at(i)->waveform_x, Detectors.at(i)->waveform_y, ref_time[0], yfactor, baseline_region_end);
             avers.at(i)->StandardAverage();
         }

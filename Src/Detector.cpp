@@ -32,12 +32,13 @@ void Detector::InvertY()
     //Inverts waveform_y
     std::transform(waveform_y.begin(), waveform_y.end(), waveform_y.begin(), [](double y) { return -y; });
 }
+/*
 void Detector::ConvertToTR()
 {
     //Inverts waveform_y
-    std::transform(waveform_y.begin(), waveform_y.end(), waveform_y.begin(), [](double y) { return y / gvertical_gain_ch * gvertical_gain_tr; });
+    std::transform(waveform_y.begin(), waveform_y.end(), waveform_y.begin(), [](double y) { return y / gvertical_gain_ch[0] * gvertical_gain_tr[0]; });
 }
-
+*/
 void Detector::SubstractBaseline(int base_region_end)
 {
     //Find baseline
@@ -255,7 +256,7 @@ void Detector::CalculateCharges()
 {
     double Ohms = 50;
     double step = waveform_x.at(1) - waveform_x.at(0); //the unit is ns
-    double conversion = step / Ohms * 1000;
+    double conversion = step / Ohms * 1;//the unit of waveform_y is mV.
     double leftpos = 0;
     double rightpos = 0;
 

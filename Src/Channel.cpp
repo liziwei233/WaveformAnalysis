@@ -1,6 +1,6 @@
 #include "Channel.h"
 
-Channel::Channel(const char *dir, const char *file_midname, int ID)
+Channel::Channel(const char *dir, const char *file_midname, int ID, bool isTR)
 {
     directory_path = std::string(dir);
     if (directory_path.back() != '/')
@@ -11,9 +11,11 @@ Channel::Channel(const char *dir, const char *file_midname, int ID)
         filename = std::string(file_midname) + std::string("_") + std::to_string(ID) + std::string(".txt");
 
     wave.reserve(1e8);
+    
     //waveform_x.reserve(4002);
     //waveform_y.reserve(4002);
-
+    fisTR = isTR;
+    fID = ID;
     event_number = 0;
 
     full_path = directory_path + filename;
@@ -72,6 +74,8 @@ std::vector<float> Channel::GetWaveformY() { return waveform_y; }
 
 bool Channel::GetNextEvent()
 {
+    if(fisTR) ampfac=gvertical_gain_tr[fID];
+    else ampfac=gvertical_gain_ch[fID];
     int waveform_size = gNsample;
     if(event_number >= wave.size()/waveform_size) 
     {
@@ -84,7 +88,8 @@ bool Channel::GetNextEvent()
     for (int i = 0; i < waveform_size; ++i)
     {
         waveform_x.push_back(i * ghorizontal_interval + horizontal_offset);
-        waveform_y.push_back(wave.at(i+event_number*waveform_size) * gvertical_gain_ch + vertical_offset);
+        waveform_y.push_back(wave.at(i+event_number*waveform_size) * ampfac + vertical_offset);
+        //std::cout << "ampfac & waveform_y= " <<ampfac<<"\t"<< waveform_y.back() << std::endl;
     }
 
     event_number++;

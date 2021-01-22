@@ -23,7 +23,7 @@
 class Channel
 {
     public:
-        Channel(const char* dir, const char* file_midname,int ID);
+        Channel(const char* dir, const char* file_midname,int ID, bool isTR);
         ~Channel();
         //Channel(const Channel&) = delete;
         std::vector<float> GetWaveformX(); 
@@ -39,10 +39,14 @@ class Channel
 
         std::string directory_path;
         float amp;
+        float ampfac;
         int event_number;
         int ReadBinary(std::ifstream &infile,std::vector<float> * wave);
         std::string filename;
         std::string full_path;
+    protected:
+        bool fisTR;
+        bool fID;
 
 };
 

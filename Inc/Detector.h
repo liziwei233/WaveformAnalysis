@@ -58,7 +58,7 @@ class Detector
     void SetMCP();
     void SetTR();
     void InvertY();
-    void ConvertToTR();
+    //void ConvertToTR();
     void SubstractBaseline(int base_region_end);
     void FindGlobalMaximum(int start, int end);
     void FindInvertMaximum(int start, int end);
